@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a60aef6b50e1d52419750a6aa3e18a43, type: 3}
+  m_Name: 4_White
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerConfigurations
+  sprite: {fileID: 2512569323679042151, guid: 24dbca8765a4e834c8b57fcff699dbbc, type: 3}
+  animatorController: {fileID: 9100000, guid: 841d37aa864e52e4fb16e9690132e62b, type: 2}
