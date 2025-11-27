@@ -3,7 +3,7 @@ using UnityEngine;
 public class ShieldPowerUp : MonoBehaviour
 {
     public float moveSpeed = 6f;
-    public float destroyX = -10f;
+    public float destroyX = -15f;
 
 
     private void Start()
@@ -29,3 +29,4 @@ public class ShieldPowerUp : MonoBehaviour
         }
     }
 }
+

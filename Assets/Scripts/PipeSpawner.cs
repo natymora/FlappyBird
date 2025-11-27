@@ -3,106 +3,143 @@ using UnityEngine;
 
 public class PipeSpawner : MonoBehaviour
 {
-    [Header("Configuración General")]
-    public float maxTime = 1.5f;
-    public float heightRange = 0.45f;
-    public GameObject pipe;
+    private SimpleObjectPool pool;
+
+    public Color originalColor;
+    public Color newColor = new Color(0.5f, 1f, 0.5f, 1f);
+    public float changeColorTime = 5f;
+    public SpriteRenderer spriteRenderer;
+
+    public float heightRange = 2f;
+
+    private float lifeTimer;
+    public float lifeTime = 6.5f;
 
     [Header("Movimiento Horizontal")]
     public float pipeSpeed = 6f;
-    public float pipeDestroy = -10f;
-
-    private float timer;
+    public float pipeDestroy = -15f;
 
     [Header("Movimiento Vertical Aleatorio")]
-    [Range(0f, 1f)] public float movingPipeChance = 0.4f; // probabilidad de movimiento vertical
-    [Range(0f, 2f)] public float movingPipeAmplitudeMultiplier = 1.2f; // rango vertical más amplio
-    public Vector2 movingPipeSpeedRange = new Vector2(0.6f, 1.3f); // velocidad vertical
+    [Range(0f, 1f)] public float movingPipeChance = 0.3f;
+    [Range(0f, 2f)] public float movingPipeAmplitudeMultiplier = 0.8f;
+    public Vector2 movingPipeSpeedRange = new Vector2(0.6f, 1.3f);
 
     [Header("Color de Tubos Móviles")]
-    public Color movingPipeColor = new Color(0.5f, 1f, 0.5f, 1f); // verde brillante
+    public Color movingPipeColor = new Color(0.6588f, 0.4f, 0.4549f, 1f);
     public bool useColorIndicator = true;
 
     [Header("Shield Power-Up")]
     public GameObject shieldPrefab;
-    [Range(0f, 1f)] public float shieldChance = 0.15f; // probabilidad de que aparezca
+    [Range(0f, 1f)] public float shieldChance = 0.15f;
 
-    private void Start()
+
+    public void SetPool(SimpleObjectPool objectPool)
+    {
+        pool = objectPool;
+    }
+
+    void OnEnable()
     {
         if (GameController.instance.canPlay)
         {
-            SpawnPipe();
+            originalColor = spriteRenderer.color;
+            lifeTimer = 0;
+
+            StartMovement();  // Aquí inicia el movimiento desde el primer frame
         }
     }
 
     private void Update()
     {
-        if (GameController.instance.canPlay)
-        {
-            timer += Time.deltaTime;
+        if (!GameController.instance.canPlay)
+            return;
 
-            if (timer > maxTime)
+        lifeTimer += Time.deltaTime;
+
+        // Cambio de color por tiempo (ARREGLO: aplicar a TODOS los SpriteRenderer)
+        if (lifeTimer >= changeColorTime)
+        {
+            SpriteRenderer[] allRenderers = GetComponentsInChildren<SpriteRenderer>();
+            foreach (var r in allRenderers)
+                r.color = newColor;
+        }
+
+        // Tiempo de vida del tubo
+        if (lifeTimer > lifeTime)
+        {
+            ResetValues();
+            ReturnToPool();
+        }
+    }
+
+    private void StartMovement()
+    {
+
+        // MOVIMIENTO HORIZONTAL
+        gameObject.transform.position = transform.position + new Vector3(0, UnityEngine.Random.Range(-heightRange, heightRange), 0);
+        Vector3 targetPos = new Vector3(pipeDestroy, transform.position.y, transform.position.z);
+
+        LeanTween.move(gameObject, targetPos, pipeSpeed)
+            .setEaseLinear();
+
+        // MOVIMIENTO VERTICAL 
+        bool shouldMove = UnityEngine.Random.value < movingPipeChance;
+
+        if (shouldMove)
+        {
+            float verticalAmplitude = heightRange * movingPipeAmplitudeMultiplier;
+            float verticalSpeed = UnityEngine.Random.Range(movingPipeSpeedRange.x, movingPipeSpeedRange.y);
+
+            float startY = transform.position.y;
+            float upY = startY + verticalAmplitude;
+
+            LeanTween.moveY(gameObject, upY, verticalSpeed)
+                .setEaseInOutSine()
+                .setLoopPingPong();
+
+            // Cambiar color del tubo móvil
+            if (useColorIndicator)
             {
-                SpawnPipe();
-                timer = 0;
+                SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
+                foreach (var r in renderers)
+                    r.color = movingPipeColor;
+            }
+        }
+        else
+        {
+            // Spawn del shield solo si NO es un tubo móvil
+            if (shieldPrefab != null && UnityEngine.Random.value < shieldChance)
+            {
+                SpawnShield(transform.position);
             }
         }
     }
 
-    private void SpawnPipe()
+    void ReturnToPool()
     {
-        Vector3 spawnPos = transform.position + new Vector3(0, UnityEngine.Random.Range(-heightRange, heightRange), 0);
-        GameObject newPipe = Instantiate(pipe, spawnPos, Quaternion.identity);
+        LeanTween.cancel(gameObject); // Cancela TODOS los tweens activos
 
-        // Movimiento horizontal
-        if (GameController.instance.canPlay)
-        {
-            Vector3 targetPos = new Vector3(pipeDestroy, newPipe.transform.position.y, newPipe.transform.position.z);
-            LeanTween.move(newPipe, targetPos, pipeSpeed)
-                .setEaseLinear()
-                .setOnComplete(() => Destroy(newPipe));
+        if (pool != null)
+            pool.ReturnToPool(gameObject);
+        else
+            gameObject.SetActive(false);
+    }
 
-            // Movimiento vertical aleatorio
-            bool shouldMove = UnityEngine.Random.value < movingPipeChance;
-            if (shouldMove)
-            {
-                float verticalAmplitude = heightRange * movingPipeAmplitudeMultiplier;
-                float verticalSpeed = UnityEngine.Random.Range(movingPipeSpeedRange.x, movingPipeSpeedRange.y);
+    private void ResetValues()
+    {
+        // Restaurar color del sprite principal
+        if (spriteRenderer != null)
+            spriteRenderer.color = originalColor;
 
-                float startY = newPipe.transform.position.y;
-                float upY = Mathf.Clamp(startY + verticalAmplitude, -heightRange, heightRange);
-                float downY = Mathf.Clamp(startY - verticalAmplitude, -heightRange, heightRange);
-
-                LeanTween.moveY(newPipe, upY, verticalSpeed)
-                    .setEaseInOutSine()
-                    .setLoopPingPong();
-
-                // Cambiar color de tubo móvil
-                if (useColorIndicator)
-                {
-                    SpriteRenderer[] renderers = newPipe.GetComponentsInChildren<SpriteRenderer>();
-                    foreach (var r in renderers)
-                    {
-                        r.color = movingPipeColor;
-                    }
-                }
-            }
-            else
-            {
-                // Spawn de shield SOLO si el tubo NO se mueve verticalmente
-                if (shieldPrefab != null && UnityEngine.Random.value < shieldChance)
-                {
-                    SpawnShield(newPipe.transform.position);
-                }
-            }
-        }
+        // Restaurar color de todos los hijos
+        SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>();
+        foreach (var r in renderers)
+            r.color = originalColor;
     }
 
     private void SpawnShield(Vector3 position)
     {
         if (shieldPrefab != null)
-        {
             Instantiate(shieldPrefab, position, Quaternion.identity);
-        }
     }
 }

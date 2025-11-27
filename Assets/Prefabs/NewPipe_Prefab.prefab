@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 623881546322308304}
   - component: {fileID: 7037653401886294559}
   - component: {fileID: 7926807168135339831}
+  - component: {fileID: 7371860277059496696}
   m_Layer: 0
   m_Name: NewPipe_Prefab
   m_TagString: Untagged
@@ -93,6 +94,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be60339fb4689ef4f99b7cf9ce50b877, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScoreIncrease
+--- !u!114 &7371860277059496696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4375167654195648510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d2f83094d6a6e4cb5660f3c90a52be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PipeSpawner
+  originalColor: {r: 0, g: 0, b: 0, a: 0}
+  newColor: {r: 0.5, g: 1, b: 0.5, a: 1}
+  changeColorTime: 5
+  spriteRenderer: {fileID: 1449988410245498769}
+  heightRange: 2
+  lifeTime: 6.5
+  pipeSpeed: 6
+  pipeDestroy: -15
+  movingPipeChance: 0.3
+  movingPipeAmplitudeMultiplier: 0.8
+  movingPipeSpeedRange: {x: 0.6, y: 1.3}
+  movingPipeColor: {r: 0.6603774, g: 0.40183342, b: 0.45527318, a: 1}
+  useColorIndicator: 1
+  shieldPrefab: {fileID: 4104935482580716538, guid: 239f8ffc9393e3c4396c13524a1082bf, type: 3}
+  shieldChance: 0.15
 --- !u!1 &8744160672166064073
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,7 +4,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Player")]
-    public float jumpForce = 0;
+    public float jumpForce = 1.8f;
     public float travelTime = 0.2f;
     public Rigidbody2D rigidbody2D;
     public float rotationSpeed = 0.1f;
@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Invincibilidad")]
     [Tooltip("Duración de la invencibilidad después de perder el escudo")]
-    public float invincibilityDuration = 4f; // 💫 ahora puedes ajustarla fácilmente desde el Inspector
+    public float invincibilityDuration = 1.5f; // 💫 ahora puedes ajustarla fácilmente desde el Inspector
 
     public void SelectCharacter(int character) 
     { 

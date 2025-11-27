@@ -105,7 +105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShieldPowerUp
   moveSpeed: 6
-  destroyX: -10
+  destroyX: -15
 --- !u!58 &7219722949124018812
 CircleCollider2D:
   m_ObjectHideFlags: 0
